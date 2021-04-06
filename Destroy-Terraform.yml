@@ -1,0 +1,40 @@
+# Terraform Destroy
+# Besart Sulejmani
+
+# Created 15-03-2021
+# https://aka.ms/yaml
+
+name: Destroy Terraform
+
+# Manually trigger pipeline in Azure DevOps
+trigger: none
+
+# Variable group from Azure DevOps library
+variables:
+- group: backend_config
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: destroy_terraform
+  steps:
+
+  - task: TerraformTaskV1@0
+    displayName: 'Terraform : Init'
+    inputs:
+      workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+      provider: 'azurerm'
+      command: 'init'
+      backendServiceArm: '$(tbc__backend_service_arm)'
+      backendAzureRmResourceGroupName: '$(tbc__resource_group_name)'
+      backendAzureRmStorageAccountName: '$(tbc__storage_account_name)'
+      backendAzureRmContainerName: '$(tbc__container_name)'
+      backendAzureRmKey: '$(tbc__key)'
+
+  - task: TerraformTaskV1@0
+    displayName: 'Terraform : Destroy'
+    inputs:
+      command: 'destroy'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+      environmentServiceNameAzureRM: '$(tbc__backend_service_arm)'
